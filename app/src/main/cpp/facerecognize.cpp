@@ -16,7 +16,7 @@
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG , "Seeta", __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN , "Seeta", __VA_ARGS__)
 
-static seeta::FaceEngine *FE;
+static seeta::FaceEngine *FE = NULL;
 static std::map<int64_t, std::string> GalleryIndexMap;
 // recognization threshold
 static float threshold = 0.1;
@@ -55,28 +55,28 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_chihun_learn_seetafacedemo_seeta_FaceRecognizer_nativeRegisterFace(JNIEnv *env, jobject instance, jobject faceList) {
 
+    if(NULL == FE) {
+        LOGW("FE is NULL");
+        return;
+    }
+
     jclass jArrayList = env->GetObjectClass(faceList);
     jmethodID jArrayList_get = env->GetMethodID(jArrayList, "get", "(I)Ljava/lang/Object;");
     jmethodID jArrayList_size = env->GetMethodID(jArrayList, "size", "()I");
     jint len = env->CallIntMethod(faceList, jArrayList_size);
     LOGD("face len: %d", len);
     GalleryIndexMap.clear();
-    std::vector<int64_t> GalleryIndex(len);
     for (int i = 0; i < len; i++) {
         jstring filepath_ = (jstring) env->CallObjectMethod(faceList, jArrayList_get, i);
         const char *filepath = env->GetStringUTFChars(filepath_, 0);
         LOGD("filepath: %s", filepath);
 
-        int64_t &index = GalleryIndex[i];
         seeta::cv::ImageData image = cv::imread( filepath );
-
-        if(NULL == FE) {
-            LOGW("FE is NULL");
-            return;
-        }
         auto id = FE->Register( image );
-        LOGD("Registered id = %d, index=%d", id, index);
-        GalleryIndexMap.insert( std::make_pair( index, filepath ) );
+        LOGD("Registered id = %lld", id);
+        if(id >= 0) {
+            GalleryIndexMap.insert( std::make_pair( id, filepath ) );
+        }
         env->ReleaseStringUTFChars(filepath_, filepath);
     }
 }
@@ -123,7 +123,9 @@ Java_com_chihun_learn_seetafacedemo_seeta_FaceRecognizer_nativeRecognition(JNIEn
         LOGW("similarity: %f", similarity);
         if( similarity > threshold )
         {
-            cv::putText( frame, GalleryIndexMap[index], cv::Point( face.pos.x, face.pos.y - 5 ), CV_FONT_HERSHEY_COMPLEX, 1, CV_RGB( 255, 128, 128 ) );
+            std::string name = GalleryIndexMap[index];
+            LOGD("name: %s", name.c_str());
+            cv::putText( frame, name, cv::Point( face.pos.x, face.pos.y - 5 ), CV_FONT_HERSHEY_COMPLEX, 1, CV_RGB( 255, 128, 128 ) );
         }
     }
 }
@@ -131,7 +133,9 @@ Java_com_chihun_learn_seetafacedemo_seeta_FaceRecognizer_nativeRecognition(JNIEn
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_chihun_learn_seetafacedemo_seeta_FaceRecognizer_releaseNativeEngine(JNIEnv *env, jobject instance) {
-    delete FE;
+    if(NULL != FE) {
+        delete FE;
+    }
     int ret = EXIT_SUCCESS;
     return (jint)ret;
 }

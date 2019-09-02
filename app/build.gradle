@@ -3,7 +3,12 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
 
+    Properties properties = new Properties()
+    InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream() ;
+    properties.load(inputStream)
 
+    def sdkDir = properties.getProperty('sdk.dir')
+    def ndkDir = properties.getProperty('ndk.dir')
 
     defaultConfig {
         applicationId "com.chihun.learn.seetafacedemo"
@@ -15,9 +20,10 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                arguments "-GAndroid Gradle - Ninja"
-                arguments "-DCMAKE_MAKE_PROGRAM=D:\\dev\\sdk\\android-sdk-windows\\cmake\\3.10.2.4988404\\bin\\ninja"
-                arguments "-DCMAKE_TOOLCHAIN_FILE=D:\\dev\\ndk\\android-ndk-r18b\\build\\cmake\\android.toolchain.cmake"
+//                arguments "-GAndroid Gradle - Ninja"
+                // 修改为你自己的SDK、NDK路径及Cmake版本
+//                arguments "-DCMAKE_MAKE_PROGRAM=${sdkDir}\\cmake\\3.10.2.4988404\\bin\\ninja"
+                arguments "-DCMAKE_TOOLCHAIN_FILE=${ndkDir}\\build\\cmake\\android.toolchain.cmake"
                 arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang","-DCMAKE_BUILD_TYPE=Release"
 
                 cppFlags "-std=c++11 -fopenmp -O3"

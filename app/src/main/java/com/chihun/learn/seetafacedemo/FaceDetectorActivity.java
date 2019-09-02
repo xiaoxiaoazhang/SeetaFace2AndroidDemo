@@ -7,14 +7,11 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 
-import org.opencv.android.BaseLoaderCallback;
+import com.chihun.learn.seetafacedemo.seeta.FaceDetector;
+
 import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-
-import com.chihun.learn.seetafacedemo.seeta.FaceDetector;
 
 public class FaceDetectorActivity extends AppCompatActivity {
 
@@ -23,23 +20,6 @@ public class FaceDetectorActivity extends AppCompatActivity {
     private CameraBridgeViewBase cameraBridgeViewBase;
     private Mat mRgba;
     private Mat mGray;
-
-    private BaseLoaderCallback _baseLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS: {
-                    Log.i(TAG, "OpenCV loaded successfully");
-                    cameraBridgeViewBase.enableView();
-                    break;
-                }
-                default: {
-                    super.onManagerConnected(status);
-                    break;
-                }
-            }
-        }
-    };
 
     private CameraBridgeViewBase.CvCameraViewListener2 mCvCameraViewListener2 = new CameraBridgeViewBase.CvCameraViewListener2() {
 
@@ -110,13 +90,8 @@ public class FaceDetectorActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, _baseLoaderCallback);
-        } else {
-            Log.d(TAG, "OpenCV library found inside package. Using it!");
-            _baseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
+        if (cameraBridgeViewBase != null)
+            cameraBridgeViewBase.enableView();
     }
 
     public void onDestroy() {

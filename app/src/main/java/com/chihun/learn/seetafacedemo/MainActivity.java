@@ -45,18 +45,18 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.detect:
-                if (mRequestPermission.isEmpty()) {
+//                if (mRequestPermission.isEmpty()) {
                     startActivity(new Intent(this, FaceDetectorActivity.class));
-                } else {
-                    Toast.makeText(this, "PERMISSION DENIED!", Toast.LENGTH_LONG).show();
-                }
+//                } else {
+//                    Toast.makeText(this, "PERMISSION DENIED!", Toast.LENGTH_LONG).show();
+//                }
                 break;
             case R.id.recognize:
-                if (mRequestPermission.isEmpty()) {
+//                if (mRequestPermission.isEmpty()) {
                     startActivity(new Intent(this, FaceRecognizerActivity.class));
-                } else {
-                    Toast.makeText(this, "PERMISSION DENIED!", Toast.LENGTH_LONG).show();
-                }
+//                } else {
+//                    Toast.makeText(this, "PERMISSION DENIED!", Toast.LENGTH_LONG).show();
+//                }
                 break;
         }
     }
